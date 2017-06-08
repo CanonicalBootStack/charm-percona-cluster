@@ -134,3 +134,25 @@ performance_schema=Off
 [sst]
 sockopt=,pf=ip6
 {% endif %}
+
+# BEGIN bootstack
+skip-name-resolve
+
+# Workaround poor IO perf as reported at:
+#     https://bugs.launchpad.net/charms/+source/percona-cluster/+bug/1599222
+
+# main improvement: from ~90% util to ~20%:
+innodb_flush_log_at_trx_commit=0
+
+#UPDATES also (openstack does quite some):
+innodb_change_buffering=all
+
+# ~90 iops -> 100%util as observed
+innodb_io_capacity=100
+
+#Lowers ioutil by 5%-ish but can be dangerous (txn re-ordering in replay/recovery)
+#innodb_support_xa=0
+
+#worsens by %5-ish, but would save us kernel cache:
+innodb_flush_method=O_DIRECT
+# END bootstack
